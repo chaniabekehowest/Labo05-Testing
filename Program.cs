@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 var mongoSettings = builder.Configuration.GetSection("MongoConnection");
 builder.Services.Configure<DatabaseSettings>(mongoSettings);
 
+var apikeySettings = builder.Configuration.GetSection("ApiKeySettings");
+builder.Services.Configure<ApiKeySettings>(apikeySettings);
+
 builder.Services.AddTransient<IMongoContext, MongoContext>();
 
 builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<SneakerValidator>());
@@ -15,7 +18,10 @@ builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 
 builder.Services.AddTransient<ISneakerService, SneakerService>();
 
+
 var app = builder.Build();
+
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.MapGet("/", () => "Hello World!");
 
